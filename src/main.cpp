@@ -1,18 +1,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <shader.h>
 
 #include <iostream>
 
+#include <shader.h>
+#include <constants.h>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-
-const unsigned int SRC_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-const bool DEBUG_WIREFRAME = false;
-
-const char* WIN_NAME = "OpenGL Base";
 
 int main() {
     // INIT
@@ -39,7 +34,8 @@ int main() {
         return -1;
     }
 
-    Shader shader("../shaders/shader.vs", "../shaders/shader.fs");
+    // Loading shaders from files
+    Shader shader("../shaders/vertex.glsl", "../shaders/fragment.glsl");
 
     // OBJECTS
     // -------------------------------------------------

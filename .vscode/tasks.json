@@ -3,12 +3,13 @@
         {
             "type": "cppbuild",
             "label": "C/C++: g++.exe build active file",
-            "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
+            "command": "C:\\tools\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "-L${workspaceFolder}\\lib",
                 "-I${workspaceFolder}\\include",
+                "-I${workspaceFolder}\\src",
                 "-lglfw3",
                 "-lopengl32",
                 "-lm",
