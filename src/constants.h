@@ -7,3 +7,4 @@ const unsigned int SCR_HEIGHT = 600;
 
 // DEBUG OPTIONS
 const bool DEBUG_WIREFRAME = false;
+const bool DEBUG_TEXTURE_BOUNDS = false;
