@@ -40,9 +40,14 @@ int main() {
     Shader shader("../shaders/vertex.glsl", "../shaders/fragment.glsl");
 
     float vertices[] = {
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f
+        0.5f,  0.5f, 0.0f,   // top right
+        0.5f, -0.5f, 0.0f,   // bottom right
+       -0.5f, -0.5f, 0.0f,   // bottom left
+       -0.5f,  0.5f, 0.0f    // top left 
+    };
+    unsigned int indices[] = {
+        0, 1, 3,   // first triangle
+        1, 2, 3    // second triangle
     };
 
     // TEXTURING
@@ -64,16 +69,18 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texRepeat);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texRepeat);
     // For Z component for 3D textures
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, texRepeat);
+    // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, texRepeat);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // Magnification doesn't accept mipmaps
 
     // OBJECTS
     // -------------------------------------------------
-    unsigned int VBO, VAO;
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
     glBindVertexArray(VAO);
 
     // GL_STREAM_DRAW: the data is set only once and used by the GPU at most a few times.
@@ -82,20 +89,23 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     // layout (location = 0) from vertex.glsl
     // vec3 so size is 3
     // type is float so GL_FLOAT
     // normalize data? GL_FALSE
     // length of one vertice data
     // offset of vertex attrib in vertices array
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // Color part of vertices
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    // glEnableVertexAttribArray(1);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0); 
 
     // Draw wireframe?
@@ -115,7 +125,8 @@ int main() {
 
         shader.use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
         // Swap buffers / poll IO events
         glfwSwapBuffers(window);
