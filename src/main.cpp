@@ -3,10 +3,10 @@
 
 #include <iostream>
 
-#include <shader.h>
-#include <constants.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <shader.h>
+#include <constants.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -22,7 +22,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    GLFWwindow* window = glfwCreateWindow(SRC_WIDTH, SCR_HEIGHT, WIN_NAME, NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_DEFAULT_WIDTH, SCR_DEFAULT_HEIGHT, WIN_NAME, NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

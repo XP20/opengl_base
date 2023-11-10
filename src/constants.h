@@ -1,10 +1,15 @@
+#ifndef OPENGL_ENGINE_CONSTANTS
+#define OPENGL_ENGINE_CONSTANTS
+
 // WINDOW PROPERTIES
-const char* WIN_NAME = "OpenGL Base";
+static const char* WIN_NAME = "OpenGL Base";
 
 // SCREEN PROPERTIES
-const unsigned int SRC_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+static const unsigned int SCR_DEFAULT_WIDTH = 800;
+static const unsigned int SCR_DEFAULT_HEIGHT = 600;
 
 // DEBUG OPTIONS
-const bool DEBUG_WIREFRAME = true;
-const bool DEBUG_TEXTURE_BOUNDS = false;
+static const bool DEBUG_WIREFRAME = true;
+static const bool DEBUG_TEXTURE_BOUNDS = false;
+
+#endif
