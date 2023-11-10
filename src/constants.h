@@ -9,7 +9,7 @@ static const unsigned int SCR_DEFAULT_WIDTH = 800;
 static const unsigned int SCR_DEFAULT_HEIGHT = 600;
 
 // DEBUG OPTIONS
-static const bool DEBUG_WIREFRAME = true;
-static const bool DEBUG_TEXTURE_BOUNDS = false;
+static const bool DEBUG_WIREFRAME = false;
+static const bool DEBUG_TEXTURE_BORDERS = false;
 
 #endif

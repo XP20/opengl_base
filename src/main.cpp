@@ -36,43 +36,18 @@ int main() {
         return -1;
     }
 
-    // Loading shaders from files
     Shader shader("../shaders/vertex.glsl", "../shaders/fragment.glsl");
 
     float vertices[] = {
-        0.5f,  0.5f, 0.0f,   // top right
-        0.5f, -0.5f, 0.0f,   // bottom right
-       -0.5f, -0.5f, 0.0f,   // bottom left
-       -0.5f,  0.5f, 0.0f    // top left 
+        0.5f,  0.5f, 0.0f, 1.0f, 1.0f,  // top right
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+       -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  // bottom left
+       -0.5f,  0.5f, 0.0f, 0.0f, 1.0f   // top left
     };
     unsigned int indices[] = {
         0, 1, 3,   // first triangle
         1, 2, 3    // second triangle
     };
-
-    // TEXTURING
-    // -------------------------------------------------
-    float texCoords[] = {
-        0.0f, 0.0f,  // lower-left corner  
-        1.0f, 0.0f,  // lower-right corner
-        0.5f, 1.0f   // top-center corner
-    };
-
-    GLint texRepeat;
-    if (DEBUG_TEXTURE_BOUNDS) {
-        texRepeat = GL_CLAMP_TO_BORDER;
-        float borderColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
-    } else {
-        texRepeat = GL_CLAMP_TO_EDGE;
-    }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texRepeat);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texRepeat);
-    // For Z component for 3D textures
-    // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, texRepeat);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // Magnification doesn't accept mipmaps
 
     // OBJECTS
     // -------------------------------------------------
@@ -92,29 +67,70 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+
     // layout (location = 0) from vertex.glsl
     // vec3 so size is 3
     // type is float so GL_FLOAT
     // normalize data? GL_FALSE
-    // length of one vertice data
+    // length of one vertice total data
     // offset of vertex attrib in vertices array
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Color part of vertices
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
-    // glEnableVertexAttribArray(1);
+    // TexCoord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0); 
+    // TEXTURING
+    // -------------------------------------------------
+    float texCoords[] = {
+        0.0f, 0.0f,  // lower-left corner  
+        1.0f, 0.0f,  // lower-right corner
+        0.5f, 1.0f   // top-center corner
+    };
 
-    // Draw wireframe?
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    GLint texRepeat;
+    if (DEBUG_TEXTURE_BORDERS) {
+        texRepeat = GL_CLAMP_TO_BORDER;
+        float borderColor[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);  
+    } else {
+        texRepeat = GL_CLAMP_TO_EDGE;
+    }
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texRepeat);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texRepeat);
+    // glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, texRepeat);  // Z component for 3D textures
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // Magnification doesn't accept mipmaps
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("../assets/textures/wood_container.jpg", &width, &height, &nrChannels, 0); 
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+
     if (DEBUG_WIREFRAME) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
     // RENDER LOOP
     // ------------------------------------------------- 
+    shader.use();
+    shader.setInt("texture1", 0);
+
     while(!glfwWindowShouldClose(window)) {
         // Input
         processInput(window);
@@ -123,9 +139,11 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        
         shader.use();
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
 
         // Swap buffers / poll IO events
